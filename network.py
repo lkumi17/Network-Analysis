@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
+import seaborn as sns
 from matplotlib.lines import Line2D
 from networkx.algorithms.community import girvan_newman
 
@@ -131,12 +132,12 @@ degree_centrality = nx.degree_centrality(G)
 betweenness_centrality = nx.betweenness_centrality(G)
 closeness_centrality = nx.closeness_centrality(G)
 
-# Display top 20 nodes by centrality measures
+# Display top 20 nodes by centrality measures in a structured table format
 def display_top_20_centrality(centrality_dict, centrality_name):
     sorted_centrality = sorted(centrality_dict.items(), key=lambda x: x[1], reverse=True)
+    top_20 = pd.DataFrame(sorted_centrality[:20], columns=["Node", centrality_name])
     st.sidebar.write(f"Top 20 nodes by {centrality_name}:")
-    for node, centrality_value in sorted_centrality[:20]:
-        st.sidebar.write(f"Node: {node}, {centrality_name}: {centrality_value:.4f}")
+    st.sidebar.table(top_20)
 
 display_top_20_centrality(degree_centrality, "Degree Centrality")
 display_top_20_centrality(betweenness_centrality, "Betweenness Centrality")
@@ -148,35 +149,46 @@ def simulate_node_removal(graph, node):
         graph_copy = graph.copy()
         graph_copy.remove_node(node)
 
-        degree_centrality = nx.degree_centrality(graph_copy)
-        betweenness_centrality = nx.betweenness_centrality(graph_copy)
-        closeness_centrality = nx.closeness_centrality(graph_copy)
+        # Recalculate centrality measures
+        degree_centrality_after = nx.degree_centrality(graph_copy)
+        betweenness_centrality_after = nx.betweenness_centrality(graph_copy)
+        closeness_centrality_after = nx.closeness_centrality(graph_copy)
 
         st.subheader(f"Graph After Removing Node: {node}")
-        top_20_degree = sorted(degree_centrality.items(), key=lambda x: x[1], reverse=True)[:20]
-        st.write("Top 20 nodes by Degree Centrality:")
-        for node, centrality in top_20_degree:
-            st.write(f"Node: {node}, Degree Centrality: {centrality:.4f}")
 
-        top_20_betweenness = sorted(betweenness_centrality.items(), key=lambda x: x[1], reverse=True)[:20]
-        st.write("Top 20 nodes by Betweenness Centrality:")
-        for node, centrality in top_20_betweenness:
-            st.write(f"Node: {node}, Betweenness Centrality: {centrality:.4f}")
+        # Create DataFrames for before and after centrality comparison
+        degree_df = pd.DataFrame({
+            'Node': list(degree_centrality.keys()),
+            'Before Removal': list(degree_centrality.values()),
+            'After Removal': [degree_centrality_after.get(n, 0) for n in degree_centrality.keys()]
+        }).sort_values(by='Before Removal', ascending=False).head(20)
 
-        top_20_closeness = sorted(closeness_centrality.items(), key=lambda x: x[1], reverse=True)[:20]
-        st.write("Top 20 nodes by Closeness Centrality:")
-        for node, centrality in top_20_closeness:
-            st.write(f"Node: {node}, Closeness Centrality: {centrality:.4f}")
+        # Display degree centrality before/after comparison
+        st.write("Top 20 nodes by Degree Centrality (Before and After Removal):")
+        st.table(degree_df)
 
-        node_sizes = [1000 * degree_centrality[node] for node in graph_copy.nodes]
+        # Plot bar chart to visualize changes in centrality
+        st.write("Visualizing Changes in Degree Centrality:")
+        fig, ax = plt.subplots(figsize=(10, 6))
+        degree_df.plot(x='Node', kind='bar', ax=ax, color=['#66c2a5', '#fc8d62'])
+        plt.title('Degree Centrality Before vs After Node Removal')
+        plt.ylabel('Centrality')
+        plt.xticks(rotation=45)
+        st.pyplot(fig)
+
+        # Redraw the network graph
+        node_sizes = [1000 * degree_centrality_after.get(node, 0.01) for node in graph_copy.nodes]
         node_colors = [graph_copy.nodes[node]['type'] for node in graph_copy.nodes]
         node_color_values = [color_map.get(node_colors[i], 'lightgrey') for i in range(len(node_colors))]
 
         plt.figure(figsize=(14, 10))
         pos = nx.kamada_kawai_layout(graph_copy)
-        nx.draw(graph_copy, pos, with_labels=True, node_color=node_color_values, node_size=node_sizes, font_size=8, font_color='black', edge_color='gray', alpha=0.7)
+        nx.draw(graph_copy, pos, with_labels=True, node_color=node_color_values, 
+                node_size=node_sizes, font_size=8, font_color='black', 
+                edge_color='gray', alpha=0.7)
 
-        legend_elements = [Line2D([0], [0], marker='o', color='w', label=key, markersize=10, markerfacecolor=value) for key, value in color_map.items()]
+        legend_elements = [Line2D([0], [0], marker='o', color='w', label=key, 
+                                  markersize=10, markerfacecolor=value) for key, value in color_map.items()]
         plt.legend(handles=legend_elements, loc='best', fontsize='small')
 
         st.pyplot(plt)
