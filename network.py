@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
-import seaborn as sns
 from matplotlib.lines import Line2D
 from networkx.algorithms.community import girvan_newman
 
