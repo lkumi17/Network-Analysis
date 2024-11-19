@@ -127,6 +127,13 @@ color_map = {
 
 # Centrality measures
 st.sidebar.header("Centrality Measures")
+st.sidebar.write(
+    """
+    - **Degree Centrality**: Indicates how many direct connections a safety factor has to others.
+    - **Betweenness Centrality**: A measure of how critical a safety factor is in connecting different risks.
+    - **Closeness Centrality**: Reflects how quickly information or risks can propagate from a safety factor to the rest of the network.
+    """
+)
 degree_centrality = nx.degree_centrality(G)
 betweenness_centrality = nx.betweenness_centrality(G)
 closeness_centrality = nx.closeness_centrality(G)
