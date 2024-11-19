@@ -134,7 +134,7 @@ closeness_centrality = nx.closeness_centrality(G)
 # Display top 10 nodes by centrality measures in a structured table format
 def display_top_10_centrality(centrality_dict, centrality_name):
     sorted_centrality = sorted(centrality_dict.items(), key=lambda x: x[1], reverse=True)
-    top_10 = pd.DataFrame(sorted_centrality[:10], columns=["node", centrality_name])
+    top_10 = pd.DataFrame(sorted_centrality[:10], columns=["Safety factor", centrality_name])
     st.sidebar.write(f"Top 10 safety factors by {centrality_name}:")
     st.sidebar.table(top_10)
 
@@ -169,7 +169,7 @@ def simulate_node_removal(graph, node):
         # Plot bar chart to visualize changes in centrality
         st.write("Visualizing Changes in Degree Centrality:")
         fig, ax = plt.subplots(figsize=(10, 6))
-        degree_df.plot(x='Node', kind='bar', ax=ax, color=['#66c2a5', '#fc8d62'])
+        degree_df.plot(x='Safety factor', kind='bar', ax=ax, color=['#66c2a5', '#fc8d62'])
         plt.title('Degree Centrality Before vs After Safety factor Removal')
         plt.ylabel('Centrality')
         plt.xticks(rotation=45)
