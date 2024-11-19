@@ -134,7 +134,7 @@ closeness_centrality = nx.closeness_centrality(G)
 # Display top 10 nodes by centrality measures in a structured table format
 def display_top_10_centrality(centrality_dict, centrality_name):
     sorted_centrality = sorted(centrality_dict.items(), key=lambda x: x[1], reverse=True)
-    top_10 = pd.DataFrame(sorted_centrality[:10], columns=["Node", centrality_name])
+    top_10 = pd.DataFrame(sorted_centrality[:10], columns=["Safety factor", centrality_name])
     st.sidebar.write(f"Top 10 safety factors by {centrality_name}:")
     st.sidebar.table(top_10)
 
