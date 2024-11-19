@@ -105,7 +105,7 @@ for _, row in df.iterrows():
 st.title("Construction Safety Factors and Accident Risks Analysis")
 
 # Sidebar for node selection
-node_selection = st.sidebar.selectbox("Select a node to simulate removal:", options=list(G.nodes()))
+node_selection = st.sidebar.selectbox("Select a safety factor to simulate removal:", options=list(G.nodes()))
 
 # Define color map for different types
 color_map = {
@@ -135,7 +135,7 @@ closeness_centrality = nx.closeness_centrality(G)
 def display_top_10_centrality(centrality_dict, centrality_name):
     sorted_centrality = sorted(centrality_dict.items(), key=lambda x: x[1], reverse=True)
     top_10 = pd.DataFrame(sorted_centrality[:10], columns=["Node", centrality_name])
-    st.sidebar.write(f"Top 10 nodes by {centrality_name}:")
+    st.sidebar.write(f"Top 10 safety factors by {centrality_name}:")
     st.sidebar.table(top_10)
 
 display_top_10_centrality(degree_centrality, "Degree Centrality")
@@ -153,24 +153,24 @@ def simulate_node_removal(graph, node):
         betweenness_centrality_after = nx.betweenness_centrality(graph_copy)
         closeness_centrality_after = nx.closeness_centrality(graph_copy)
 
-        st.subheader(f"Graph After Removing Node: {node}")
+        st.subheader(f"Graph After Removing Safety factor: {node}")
 
         # Create DataFrames for before and after centrality comparison
         degree_df = pd.DataFrame({
-            'Node': list(degree_centrality.keys()),
+            'Safety factor': list(degree_centrality.keys()),
             'Before Removal': list(degree_centrality.values()),
             'After Removal': [degree_centrality_after.get(n, 0) for n in degree_centrality.keys()]
         }).sort_values(by='Before Removal', ascending=False).head(10)
 
         # Display degree centrality before/after comparison
-        st.write("Top 10 nodes by Degree Centrality (Before and After Removal):")
+        st.write("Top 10 Safety factors by Degree Centrality (Before and After Removal):")
         st.table(degree_df)
 
         # Plot bar chart to visualize changes in centrality
         st.write("Visualizing Changes in Degree Centrality:")
         fig, ax = plt.subplots(figsize=(10, 6))
         degree_df.plot(x='Node', kind='bar', ax=ax, color=['#66c2a5', '#fc8d62'])
-        plt.title('Degree Centrality Before vs After Node Removal')
+        plt.title('Degree Centrality Before vs After Safety factor Removal')
         plt.ylabel('Centrality')
         plt.xticks(rotation=45)
         st.pyplot(fig)
